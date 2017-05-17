@@ -31,47 +31,53 @@ unsigned char out[MAX_WIDTH][MAX_HEIGHT];
 unsigned char correct_answer[MAX_WIDTH][MAX_HEIGHT];
 
 extern void deriche_float(int width, int height);
+
 extern void oracle(int width, int height);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
-	int width, height;
+    int width, height;
 
-	fprintf(stderr, "usage: %s in.pgm out.pgm\n", argv[0]);
+    fprintf(stderr, "usage: %s in.pgm out.pgm\n", argv[0]);
 
-	// load input
-	load_pgm(argv[1], &width, &height, in);
-	fprintf(stdout,"loaded ...\n");
+    // load input
+    load_pgm(argv[1], &width, &height, in);
+    fprintf(stdout, "loaded ...\n");
 
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 
-	for(int i=0; i<30; i++){
-		deriche_float(width, height);
-	}
-	
-
-	gettimeofday(&end, NULL);
-	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-	         end.tv_usec - start.tv_usec) / 1.e6;
-	printf("Elapsed time : %f sec\n",delta);
+    for (int i = 0; i < 30; i++)
+    {
+        deriche_float(width, height);
+    }
 
 
-	// save results
-	save_pgm(argv[2], width, height, out);
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec - start.tv_sec) * 1000000u +
+                    end.tv_usec - start.tv_usec) / 1.e6;
+    printf("Elapsed time : %f sec\n", delta);
 
-	oracle(width, height);
 
-	for (int i=0; i<width; i++){
-		for (int j=0; j<height; j++){
-			if(abs(out[i][j]-correct_answer[i][j])>100){
-				fprintf(stderr,"Résultat incorrect !\n");
-				exit(0);
-			}
-		}
-	}
+    // save results
+    save_pgm(argv[2], width, height, out);
 
-	printf("Résultat correct.\n");
+    oracle(width, height);
 
-	return 0;
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            if (abs(out[i][j] - correct_answer[i][j]) > 100)
+            {
+                fprintf(stderr, "Résultat incorrect i=%d et j=%d !\n", i , j);
+                exit(0);
+            }
+        }
+    }
+
+    printf("Résultat correct.\n");
+
+    return 0;
 }

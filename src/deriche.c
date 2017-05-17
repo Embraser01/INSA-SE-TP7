@@ -15,6 +15,21 @@ float tmp3[MAX_WIDTH][MAX_HEIGHT];
 float tmp4[MAX_WIDTH][MAX_HEIGHT];
 float tmp5[MAX_WIDTH][MAX_HEIGHT];
 
+int l1Treated = 0;
+int l2Treated = 0;
+int l4Treated = 0;
+int l5Treated = 0;
+
+int *l1Tab;
+int *l2Tab;
+int *l4Tab;
+int *l5Tab;
+
+pthread_mutex_t l1MutexTab = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t l2MutexTab = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t l4MutexTab = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t l5MutexTab = PTHREAD_MUTEX_INITIALIZER;
+
 
 void *L1(void *data);
 
@@ -30,8 +45,15 @@ void *L2_line(void *data);
 
 void *L4_line(void *data);
 
-void *L5_line(void *data)
-;
+void *L5_line(void *data);
+
+void *L1_pool(void *data);
+
+void *L2_pool(void *data);
+
+void *L4_pool(void *data);
+
+void *L5_pool(void *data);
 
 void deriche_float(int width, int height)
 {
@@ -101,26 +123,69 @@ void *L1(void *data)
     int *dataBis = data;
 
     int width = dataBis[0];
-    int height = dataBis[1];
 
-    pthread_t *pCols = malloc(sizeof(pthread_t) * width);
+    pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
+    l1Tab = malloc(sizeof(int) * width);
+
+    for (i = 0; i < width; ++i)
+    {
+        l1Tab[i] = 0;
+    }
+
 
     // L1:
 
-    for (i = 0; i < width; i++)
+    for (i = 0; i < MAX_THREAD; i++)
     {
-        int tab[2];
-        tab[0] = i;
-        tab[1] = height;
-        pthread_create(&pCols[i], NULL, L1_line, tab);
+        pthread_create(&pool[i], NULL, L1_pool, data);
     }
 
-    for (i = 0; i < width; i++)
+    for (i = 0; i < MAX_THREAD; i++)
     {
-        pthread_join(pCols[i], NULL);
+        pthread_join(pool[i], NULL);
+    }
+
+    // TODO FREE
+    return NULL;
+}
+
+void *L1_pool(void *data)
+{
+    int *dataBis = data;
+
+    int width = dataBis[0];
+    int height = dataBis[1];
+
+    pthread_t pthread;
+
+    int i;
+    int tab[2];
+    tab[1] = height;
+
+    while (l1Treated < width)
+    {
+        // Search for available col
+
+        pthread_mutex_lock(&l1MutexTab);
+        for (i = 0; i < width; ++i)
+        {
+            if (tab[i] == 0)
+            {
+                l1Tab[i] = 1;
+                l1Treated++;
+                tab[0] = i;
+                break;
+            }
+        }
+        pthread_mutex_unlock(&l1MutexTab);
+
+        pthread_create(&pthread, NULL, L1_line, tab);
+        pthread_join(pthread, NULL);
+
     }
     return NULL;
 }
+
 
 void *L1_line(void *data)
 {
@@ -158,23 +223,63 @@ void *L2(void *data)
     int *dataBis = data;
 
     int width = dataBis[0];
-    int height = dataBis[1];
 
-    // L2:
-
-    pthread_t *pCols = malloc(sizeof(pthread_t) * width);
-
-    for (i = 0; i < width; i++)
+    pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
+    l2Tab = malloc(sizeof(int) * width);
+    for (i = 0; i < width; ++i)
     {
-        int tab[2];
-        tab[0] = i;
-        tab[1] = height;
-        pthread_create(&pCols[i], NULL, L2_line, tab);
+        l2Tab[i] = 0;
     }
 
-    for (i = 0; i < width; i++)
+    // L1:
+
+    for (i = 0; i < MAX_THREAD; i++)
     {
-        pthread_join(pCols[i], NULL);
+        pthread_create(&pool[i], NULL, L2_pool, data);
+    }
+
+    for (i = 0; i < MAX_THREAD; i++)
+    {
+        pthread_join(pool[i], NULL);
+    }
+
+    // TODO FREE
+    return NULL;
+}
+
+void *L2_pool(void *data)
+{
+    int *dataBis = data;
+
+    int width = dataBis[0];
+    int height = dataBis[1];
+
+    pthread_t pthread;
+
+    int i;
+    int tab[2];
+    tab[1] = height;
+
+    while (l2Treated < width)
+    {
+        // Search for available col
+
+        pthread_mutex_lock(&l2MutexTab);
+        for (i = 0; i < width; ++i)
+        {
+            if (tab[i] == 0)
+            {
+                l2Tab[i] = 1;
+                l2Treated++;
+                tab[0] = i;
+                break;
+            }
+        }
+        pthread_mutex_unlock(&l2MutexTab);
+
+        pthread_create(&pthread, NULL, L2_line, tab);
+        pthread_join(pthread, NULL);
+
     }
     return NULL;
 }
@@ -213,27 +318,70 @@ void *L2_line(void *data)
 
 void *L4(void *data)
 {
+    int i;
+
+    int *dataBis = data;
+
+    int height = dataBis[1];
+
+    pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
+    l4Tab = malloc(sizeof(int) * height);
+
+    for (i = 0; i < height; ++i)
+    {
+        l4Tab[i] = 0;
+    }
+
+    // L1:
+
+    for (i = 0; i < MAX_THREAD; i++)
+    {
+        pthread_create(&pool[i], NULL, L4_pool, data);
+    }
+
+    for (i = 0; i < MAX_THREAD; i++)
+    {
+        pthread_join(pool[i], NULL);
+    }
+
+    // TODO FREE
+    return NULL;
+}
+
+void *L4_pool(void *data)
+{
     int *dataBis = data;
 
     int width = dataBis[0];
     int height = dataBis[1];
 
+    pthread_t pthread;
+
     int j;
+    int tab[2];
+    tab[0] = width;
 
-    pthread_t *pLines = malloc(sizeof(pthread_t) * height);
-
-    for (j = 0; j < height; j++)
+    while (l4Treated < width)
     {
-        int tab[2];
-        tab[0] = width;
-        tab[1] = j;
-        pthread_create(&pLines[j], NULL, L4_line, tab);
-    }
-    for (j = 0; j < height; j++)
-    {
-        pthread_join(pLines[j], NULL);
-    }
+        // Search for available col
 
+        pthread_mutex_lock(&l4MutexTab);
+        for (j = 0; j < height; ++j)
+        {
+            if (tab[j] == 0)
+            {
+                l4Tab[j] = 1;
+                l4Treated++;
+                tab[1] = j;
+                break;
+            }
+        }
+        pthread_mutex_unlock(&l4MutexTab);
+
+        pthread_create(&pthread, NULL, L4_line, tab);
+        pthread_join(pthread, NULL);
+
+    }
     return NULL;
 }
 
@@ -268,27 +416,68 @@ void *L4_line(void *data)
 
 void *L5(void *data)
 {
+    int i;
+
+    int *dataBis = data;
+
+    int height = dataBis[1];
+
+    pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
+    l5Tab = malloc(sizeof(int) * height);
+    for (i = 0; i < height; ++i)
+    {
+        l5Tab[i] = 0;
+    }
+
+    // L1:
+
+    for (i = 0; i < MAX_THREAD; i++)
+    {
+        pthread_create(&pool[i], NULL, L5_pool, data);
+    }
+
+    for (i = 0; i < MAX_THREAD; i++)
+    {
+        pthread_join(pool[i], NULL);
+    }
+
+    // TODO FREE
+    return NULL;
+}
+
+void *L5_pool(void *data)
+{
     int *dataBis = data;
 
     int width = dataBis[0];
     int height = dataBis[1];
 
+    pthread_t pthread;
+
     int j;
+    int tab[2];
+    tab[0] = width;
 
-    // L5:
-
-    pthread_t *pLines = malloc(sizeof(pthread_t) * height);
-
-    for (j = 0; j < height; j++)
+    while (l5Treated < width)
     {
-        int tab[2];
-        tab[0] = width;
-        tab[1] = j;
-        pthread_create(&pLines[j], NULL, L5_line, tab);
-    }
-    for (j = 0; j < height; j++)
-    {
-        pthread_join(pLines[j], NULL);
+        // Search for available col
+
+        pthread_mutex_lock(&l5MutexTab);
+        for (j = 0; j < height; ++j)
+        {
+            if (tab[j] == 0)
+            {
+                l5Tab[j] = 1;
+                l5Treated++;
+                tab[1] = j;
+                break;
+            }
+        }
+        pthread_mutex_unlock(&l5MutexTab);
+
+        pthread_create(&pthread, NULL, L5_line, tab);
+        pthread_join(pthread, NULL);
+
     }
     return NULL;
 }
@@ -322,8 +511,6 @@ void *L5_line(void *data)
     }
     return NULL;
 }
-
-
 
 
 void oracle(int width, int height)
