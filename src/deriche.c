@@ -67,6 +67,7 @@ void deriche_float(int width, int height) {
     sizeData[0] = width;
     sizeData[1] = height;
 
+    // L1 & L2
 
     pthread_create(&pL1, NULL, L1, sizeData);
     pthread_create(&pL2, NULL, L2, sizeData);
@@ -82,6 +83,8 @@ void deriche_float(int width, int height) {
         }
     }
 
+    // L4 & L5
+
     pthread_create(&pL4, NULL, L4, sizeData);
     pthread_create(&pL5, NULL, L5, sizeData);
 
@@ -92,8 +95,7 @@ void deriche_float(int width, int height) {
 
     for (i = 0; i < width; i++) {
         for (j = 0; j < height; j++) {
-            out[i][j] = (c2 * (tmp4[i][j] + tmp5[i][j]));
-            out[i][j] = out[i][j] > 25 ? 0 : 255;
+            out[i][j] = (unsigned char) ((unsigned char) (c2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
         }
     }
 }
