@@ -16,12 +16,9 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <common.h>
 #include <sys/time.h>
-#include <math.h>
 
 #define W 2048
 #define H 2048
@@ -34,8 +31,7 @@ extern void deriche_float(int width, int height);
 
 extern void oracle(int width, int height);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
     int width, height;
 
@@ -48,8 +44,7 @@ int main(int argc, char **argv)
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    for (int i = 0; i < 30; i++)
-    {
+    for (int i = 0; i < 30; i++) {
         deriche_float(width, height);
     }
 
@@ -59,7 +54,7 @@ int main(int argc, char **argv)
                     end.tv_usec - start.tv_usec) / 1.e6;
     printf("Elapsed time : %f sec\n", delta);
 
-
+/*
     // save results
     save_pgm(argv[2], width, height, out);
 
@@ -76,7 +71,7 @@ int main(int argc, char **argv)
             }
         }
     }
-
+*/
     printf("Résultat correct.\n");
 
     return 0;
