@@ -52,16 +52,10 @@ void *L5_pool(void *data);
 
 
 void deriche_float(int width, int height) {
-    int i, j;
-
-    float c1, c2;
-
-    c1 = c2 = 1;
 
     pthread_t pL1;
     pthread_t pL2;
-    pthread_t pL4;
-    pthread_t pL5;
+
 
     int sizeData[2];
     sizeData[0] = width;
@@ -71,6 +65,17 @@ void deriche_float(int width, int height) {
 
     pthread_create(&pL1, NULL, L1, sizeData);
     pthread_create(&pL2, NULL, L2, sizeData);
+
+    // Let's use this time to initialize some variables
+
+    pthread_t pL4;
+    pthread_t pL5;
+
+    int i, j;
+    float c1 = 1;
+    float c2 = 1;
+
+    // Now, we are ready to wait
 
     pthread_join((pthread_t) pL1, NULL);
     pthread_join((pthread_t) pL2, NULL);
