@@ -71,7 +71,7 @@ int main(int argc, char **argv)
         {
             if (abs(out[i][j] - correct_answer[i][j]) > 100)
             {
-                fprintf(stderr, "Résultat incorrect i=%d et j=%d !\n", i , j);
+                fprintf(stderr, "Résultat incorrect à i=%d et j=%d !\n", i , j);
                 exit(0);
             }
         }

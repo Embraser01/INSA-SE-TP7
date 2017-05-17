@@ -169,7 +169,7 @@ void *L1_pool(void *data)
         pthread_mutex_lock(&l1MutexTab);
         for (i = 0; i < width; ++i)
         {
-            if (tab[i] == 0)
+            if (l1Tab[i] == 0)
             {
                 l1Tab[i] = 1;
                 l1Treated++;
@@ -267,7 +267,7 @@ void *L2_pool(void *data)
         pthread_mutex_lock(&l2MutexTab);
         for (i = 0; i < width; ++i)
         {
-            if (tab[i] == 0)
+            if (l2Tab[i] == 0)
             {
                 l2Tab[i] = 1;
                 l2Treated++;
@@ -361,14 +361,14 @@ void *L4_pool(void *data)
     int tab[2];
     tab[0] = width;
 
-    while (l4Treated < width)
+    while (l4Treated < height)
     {
         // Search for available col
 
         pthread_mutex_lock(&l4MutexTab);
         for (j = 0; j < height; ++j)
         {
-            if (tab[j] == 0)
+            if (l4Tab[j] == 0)
             {
                 l4Tab[j] = 1;
                 l4Treated++;
@@ -458,14 +458,14 @@ void *L5_pool(void *data)
     int tab[2];
     tab[0] = width;
 
-    while (l5Treated < width)
+    while (l5Treated < height)
     {
         // Search for available col
 
         pthread_mutex_lock(&l5MutexTab);
         for (j = 0; j < height; ++j)
         {
-            if (tab[j] == 0)
+            if (l5Tab[j] == 0)
             {
                 l5Tab[j] = 1;
                 l5Treated++;
