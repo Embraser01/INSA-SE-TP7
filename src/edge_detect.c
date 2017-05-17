@@ -54,24 +54,21 @@ int main(int argc, char **argv) {
                     end.tv_usec - start.tv_usec) / 1.e6;
     printf("Elapsed time : %f sec\n", delta);
 
-/*
+
     // save results
     save_pgm(argv[2], width, height, out);
 
     oracle(width, height);
 
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            if (abs(out[i][j] - correct_answer[i][j]) > 100)
-            {
-                fprintf(stderr, "Résultat incorrect à i=%d et j=%d !\n", i , j);
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            if (abs(out[i][j] - correct_answer[i][j]) > 100) {
+                fprintf(stderr, "Résultat incorrect à i=%d et j=%d !\n", i, j);
                 exit(0);
             }
         }
     }
-*/
+
     printf("Résultat correct.\n");
 
     return 0;
