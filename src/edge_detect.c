@@ -62,6 +62,10 @@ int main(int argc, char **argv) {
 
     oracle(width, height);
 
+    /*for (int i = 0; i < MULTIPLIER; i++) {
+        oracle(width, height);
+    }*/
+
     gettimeofday(&end, NULL);
     double delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u +
                             end.tv_usec - start.tv_usec) / 1.e6) * MULTIPLIER;

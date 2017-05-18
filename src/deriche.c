@@ -7,25 +7,25 @@ extern unsigned char in[MAX_WIDTH][MAX_HEIGHT];
 extern unsigned char out[MAX_WIDTH][MAX_HEIGHT];
 extern unsigned char correct_answer[MAX_WIDTH][MAX_HEIGHT];
 
-float tmp1[MAX_WIDTH][MAX_HEIGHT];
-float tmp2[MAX_WIDTH][MAX_HEIGHT];
-float tmp3[MAX_WIDTH][MAX_HEIGHT];
-float tmp4[MAX_WIDTH][MAX_HEIGHT];
-float tmp5[MAX_WIDTH][MAX_HEIGHT];
+static float tmp1[MAX_WIDTH][MAX_HEIGHT];
+static float tmp2[MAX_WIDTH][MAX_HEIGHT];
+static float tmp3[MAX_WIDTH][MAX_HEIGHT];
+static float tmp4[MAX_WIDTH][MAX_HEIGHT];
+static float tmp5[MAX_WIDTH][MAX_HEIGHT];
 
-int treatedL1 = 0;
-int treatedL2 = 0;
-int treatedL3 = 0;
-int treatedL4 = 0;
-int treatedL5 = 0;
-int treatedL6 = 0;
+static unsigned int treatedL1 = 0;
+static unsigned int treatedL2 = 0;
+static unsigned int treatedL3 = 0;
+static unsigned int treatedL4 = 0;
+static unsigned int treatedL5 = 0;
+static unsigned int treatedL6 = 0;
 
-pthread_mutex_t mutexL1 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexL2 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexL3 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexL4 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexL5 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL1 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL2 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL3 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL4 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL5 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
 
 
 //=======================//
@@ -33,22 +33,22 @@ pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
 //=======================//
 
 
-void *L1(void *data);
-void *L2(void *data);
-void *L4(void *data);
-void *L5(void *data);
-void *L1_line(void *data);
-void *L2_line(void *data);
-void *L3_line(void *data);
-void *L4_line(void *data);
-void *L5_line(void *data);
-void *L6_line(void *data);
-void *L1_pool(void *data);
-void *L2_pool(void *data);
-void *L3_pool(void *data);
-void *L4_pool(void *data);
-void *L5_pool(void *data);
-void *L6_pool(void *data);
+static void *L1(void *data);
+static void *L2(void *data);
+static void *L4(void *data);
+static void *L5(void *data);
+static void *L1_line(void *data);
+static void *L2_line(void *data);
+static void *L3_line(void *data);
+static void *L4_line(void *data);
+static void *L5_line(void *data);
+static void *L6_line(void *data);
+static void *L1_pool(void *data);
+static void *L2_pool(void *data);
+static void *L3_pool(void *data);
+static void *L4_pool(void *data);
+static void *L5_pool(void *data);
+static void *L6_pool(void *data);
 
 //===================//
 //===== DERICHE =====//
@@ -64,11 +64,12 @@ void deriche_float(int width, int height) {
 
     pthread_t *pool;
 
-    int i;
-    int sizeData[2];
+    unsigned int i;
+    unsigned int sizeData[2];
 
-    sizeData[0] = width;
-    sizeData[1] = height;
+    sizeData[0] = (unsigned int) width;
+    sizeData[1] = (unsigned int) height;
+
 
     // L1 & L2
 
@@ -79,7 +80,6 @@ void deriche_float(int width, int height) {
 
     pool = malloc(sizeof(pthread_t) * MAX_THREAD); // For L3 & L6
 
-
     // Now, we are ready to wait
 
     pthread_join((pthread_t) pL1, NULL);
@@ -87,8 +87,8 @@ void deriche_float(int width, int height) {
 
     // L3:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L3_pool, sizeData);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L3_pool, sizeData);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
 
     // L4 & L5
@@ -101,8 +101,8 @@ void deriche_float(int width, int height) {
 
     // L6:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L6_pool, sizeData);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L6_pool, sizeData);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
 }
 
@@ -112,53 +112,54 @@ void deriche_float(int width, int height) {
 
 
 void *L1(void *data) {
-    int i;
+    unsigned int i;
 
     pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
 
     // L1:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L1_pool, data);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L1_pool, data);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
     return NULL;
 }
 
 void *L2(void *data) {
-    int i;
+    unsigned int i;
 
     pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
 
     // L2:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L2_pool, data);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L2_pool, data);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
     return NULL;
 }
 
 void *L4(void *data) {
-    int i;
+    unsigned int i;
 
     pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
 
     // L4:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L4_pool, data);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L4_pool, data);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
     return NULL;
 }
 
 void *L5(void *data) {
-    int i;
+    unsigned int i;
 
     pthread_t *pool = malloc(sizeof(pthread_t) * MAX_THREAD);
 
     // L5:
 
-    for (i = 0; i < MAX_THREAD; i++) pthread_create(&pool[i], NULL, L5_pool, data);
-    for (i = 0; i < MAX_THREAD; i++) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L5_pool, data);
+    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
 
     return NULL;
@@ -170,14 +171,14 @@ void *L5(void *data) {
 
 
 void *L1_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[1] = height;
 
     while (treatedL1 < width) {
@@ -194,14 +195,14 @@ void *L1_pool(void *data) {
 }
 
 void *L2_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[1] = height;
 
     while (treatedL2 < width) {
@@ -219,14 +220,14 @@ void *L2_pool(void *data) {
 }
 
 void *L3_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[1] = height;
 
     while (treatedL3 < width) {
@@ -244,14 +245,14 @@ void *L3_pool(void *data) {
 }
 
 void *L4_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[0] = width;
 
     while (treatedL4 < height) {
@@ -269,14 +270,14 @@ void *L4_pool(void *data) {
 }
 
 void *L5_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[0] = width;
 
     while (treatedL5 < height) {
@@ -294,14 +295,14 @@ void *L5_pool(void *data) {
 }
 
 void *L6_pool(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int height = dataBis[1];
+    unsigned int width = dataBis[0];
+    unsigned int height = dataBis[1];
 
     pthread_t pthread;
 
-    int tab[2];
+    unsigned int tab[2];
     tab[1] = height;
 
     while (treatedL6 < width) {
@@ -324,11 +325,11 @@ void *L6_pool(void *data) {
 
 
 void *L1_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int i = dataBis[0];
-    int height = dataBis[1];
-    int j;
+    unsigned int i = dataBis[0];
+    unsigned int height = dataBis[1];
+    unsigned int j;
 
     float xm1, ym1, ym2;
     float a1, a2;
@@ -351,11 +352,11 @@ void *L1_line(void *data) {
 }
 
 void *L2_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int i = dataBis[0];
-    int height = dataBis[1];
-    int j;
+    unsigned int i = dataBis[0];
+    unsigned int height = dataBis[1];
+    unsigned int j;
 
     float xp1, xp2;
     float yp1, yp2;
@@ -369,7 +370,7 @@ void *L2_line(void *data) {
 
 
     yp1 = 0, yp2 = 0, xp1 = 0, xp2 = 0;
-    for (j = height - 1; j >= 0; j--) {
+    for (j = height; j--;) {
         tmp2[i][j] = (a3 * xp1 + a1 * xp2 + b1 * yp1 + b2 * yp2);
         xp2 = xp1;
         xp1 = in[i][j];
@@ -380,11 +381,11 @@ void *L2_line(void *data) {
 }
 
 void *L3_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int i = dataBis[0];
-    int height = dataBis[1];
-    int j;
+    unsigned int i = dataBis[0];
+    unsigned int height = dataBis[1];
+    unsigned int j;
 
     float c1 = 1;
 
@@ -396,11 +397,11 @@ void *L3_line(void *data) {
 }
 
 void *L4_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int j = dataBis[1];
-    int i;
+    unsigned int width = dataBis[0];
+    unsigned int j = dataBis[1];
+    unsigned int i;
 
     float tm1, ym1, ym2;
     float a5, a6;
@@ -422,11 +423,11 @@ void *L4_line(void *data) {
 }
 
 void *L5_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int width = dataBis[0];
-    int j = dataBis[1];
-    int i;
+    unsigned int width = dataBis[0];
+    unsigned int j = dataBis[1];
+    unsigned int i;
 
     float tp1, tp2;
     float yp1, yp2;
@@ -439,7 +440,7 @@ void *L5_line(void *data) {
     b2 = (float) ((-0.606531));
 
     tp1 = 0, tp2 = 0, yp1 = 0, yp2 = 0;
-    for (i = width - 1; i >= 0; i--) {
+    for (i = width; i--;) {
         tmp5[i][j] = (a7 * tp1 + a8 * tp2 + b1 * yp1 + b2 * yp2);
         tp2 = tp1;
         tp1 = tmp3[i][j];
@@ -450,11 +451,11 @@ void *L5_line(void *data) {
 }
 
 void *L6_line(void *data) {
-    int *dataBis = data;
+    unsigned int *dataBis = data;
 
-    int i = dataBis[0];
-    int height = dataBis[1];
-    int j;
+    unsigned int i = dataBis[0];
+    unsigned int height = dataBis[1];
+    unsigned int j;
 
     float c2 = 1;
 
