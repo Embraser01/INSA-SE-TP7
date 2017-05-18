@@ -28,6 +28,23 @@ static pthread_mutex_t mutexL5 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
 
 
+//===================//
+//===== DEFINES =====//
+//===================//
+
+
+#define A1 -0.188682f
+#define A2 0.110209f
+#define A3 -0.183682f
+#define A5 -0.188682f
+#define A6 0.110209f
+#define A7 -0.183682f
+#define A8 0.114441f
+#define B1 0.840896f
+#define B2 -0.606531f
+#define C1 1
+#define C2 1
+
 //=======================//
 //===== DECLARATION =====//
 //=======================//
@@ -332,18 +349,11 @@ void *L1_line(void *data) {
     unsigned int j;
 
     float xm1, ym1, ym2;
-    float a1, a2;
-    float b1, b2;
-
-    a1 = (float) ((-0.188682));
-    a2 = ((0.110209));
-    b1 = ((0.840896));
-    b2 = (float) ((-0.606531));
 
     ym1 = 0, ym2 = 0, xm1 = 0;
 
     for (j = 0; j < height; j++) {
-        tmp1[i][j] = (a1 * in[i][j] + a2 * xm1 + b1 * ym1 + b2 * ym2);
+        tmp1[i][j] = (A1 * in[i][j] + A2 * xm1 + B1 * ym1 + B2 * ym2);
         xm1 = in[i][j];
         ym2 = ym1;
         ym1 = tmp1[i][j];
@@ -360,18 +370,11 @@ void *L2_line(void *data) {
 
     float xp1, xp2;
     float yp1, yp2;
-    float a1, a3;
-    float b1, b2;
-
-    a1 = (float) ((-0.188682));
-    a3 = (float) ((-0.183682));
-    b1 = ((0.840896));
-    b2 = (float) ((-0.606531));
 
 
     yp1 = 0, yp2 = 0, xp1 = 0, xp2 = 0;
     for (j = height; j--;) {
-        tmp2[i][j] = (a3 * xp1 + a1 * xp2 + b1 * yp1 + b2 * yp2);
+        tmp2[i][j] = (A3 * xp1 + A1 * xp2 + B1 * yp1 + B2 * yp2);
         xp2 = xp1;
         xp1 = in[i][j];
         yp2 = yp1;
@@ -387,11 +390,7 @@ void *L3_line(void *data) {
     unsigned int height = dataBis[1];
     unsigned int j;
 
-    float c1 = 1;
-
-    for (j = 0; j < height; j++) {
-        tmp3[i][j] = (c1 * (tmp1[i][j] + tmp2[i][j]));
-    }
+    for (j = height; j--;) tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
 
     return NULL;
 }
@@ -404,17 +403,10 @@ void *L4_line(void *data) {
     unsigned int i;
 
     float tm1, ym1, ym2;
-    float a5, a6;
-    float b1, b2;
-
-    a5 = (float) ((-0.188682));
-    a6 = ((0.110209));
-    b1 = ((0.840896));
-    b2 = (float) ((-0.606531));
 
     tm1 = 0, ym1 = 0, ym2 = 0;
     for (i = 0; i < width; i++) {
-        tmp4[i][j] = (a5 * tmp3[i][j] + a6 * tm1 + b1 * ym1 + b2 * ym2);
+        tmp4[i][j] = (A5 * tmp3[i][j] + A6 * tm1 + B1 * ym1 + B2 * ym2);
         tm1 = tmp3[i][j];
         ym2 = ym1;
         ym1 = tmp4[i][j];
@@ -431,17 +423,10 @@ void *L5_line(void *data) {
 
     float tp1, tp2;
     float yp1, yp2;
-    float a7, a8;
-    float b1, b2;
-
-    a7 = (float) ((-0.183682));
-    a8 = ((0.114441));
-    b1 = ((0.840896));
-    b2 = (float) ((-0.606531));
 
     tp1 = 0, tp2 = 0, yp1 = 0, yp2 = 0;
     for (i = width; i--;) {
-        tmp5[i][j] = (a7 * tp1 + a8 * tp2 + b1 * yp1 + b2 * yp2);
+        tmp5[i][j] = (A7 * tp1 + A8 * tp2 + B1 * yp1 + B2 * yp2);
         tp2 = tp1;
         tp1 = tmp3[i][j];
         yp2 = yp1;
@@ -457,10 +442,8 @@ void *L6_line(void *data) {
     unsigned int height = dataBis[1];
     unsigned int j;
 
-    float c2 = 1;
-
-    for (j = 0; j < height; j++) {
-        out[i][j] = (unsigned char) ((unsigned char) (c2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
+    for (j = height; j--;) {
+        out[i][j] = (unsigned char) ((unsigned char) (C2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
     }
     return NULL;
 }
