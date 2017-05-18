@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    for (int i = 0; i < MULTIPLIER; i++) {
+    for (int i = MULTIPLIER; i--;) {
         deriche_float(width, height);
     }
 
