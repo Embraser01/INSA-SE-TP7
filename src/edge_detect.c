@@ -20,8 +20,7 @@
 #include <common.h>
 #include <sys/time.h>
 
-#define W 2048
-#define H 2048
+#define MULTIPLIER 30
 
 unsigned char in[MAX_WIDTH][MAX_HEIGHT];
 unsigned char out[MAX_WIDTH][MAX_HEIGHT];
@@ -44,7 +43,7 @@ int main(int argc, char **argv) {
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < MULTIPLIER; i++) {
         deriche_float(width, height);
     }
 
@@ -52,13 +51,26 @@ int main(int argc, char **argv) {
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec - start.tv_sec) * 1000000u +
                     end.tv_usec - start.tv_usec) / 1.e6;
-    printf("Elapsed time : %f sec\n", delta);
+    printf("Temps avec optimisation : %f sec\n", delta);
 
 
     // save results
     save_pgm(argv[2], width, height, out);
 
+    // Reference
+    gettimeofday(&start, NULL);
+
     oracle(width, height);
+
+    gettimeofday(&end, NULL);
+    double delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u +
+                            end.tv_usec - start.tv_usec) / 1.e6) * MULTIPLIER;
+    printf("Temps sans optimisation : %f sec\n", delta_oracle);
+
+
+    double ratio = (delta_oracle - delta) / delta * 100;
+
+    printf("La version optimisée est %.2f%% plus rapide que l'originale\n", ratio);
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
