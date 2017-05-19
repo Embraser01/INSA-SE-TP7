@@ -3,6 +3,7 @@
 ## Presentation
 
    Petit projet consistant à optimiser un code C grâce aux threads, etc...
+   
    Ce projet implémente [l'algorithme de Deriche](https://en.wikipedia.org/wiki/Deriche_edge_detector) 
    qui permet de trouver les contours dans une images
 
