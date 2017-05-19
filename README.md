@@ -21,7 +21,7 @@ cd INSA-SE-TP7/build
 make
 ```
 
-###  Lancer l'application
+##  Lancer l'application
 
 ```bash
 $ ./deriche ../data/city.pgm ./mon_resultat.pgm
