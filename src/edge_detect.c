@@ -43,9 +43,8 @@ int main(int argc, char **argv) {
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    for (int i = MULTIPLIER; i--;) {
-        deriche_float(width, height);
-    }
+
+    for (unsigned int i = MULTIPLIER; i--;) deriche_float(width, height);
 
 
     gettimeofday(&end, NULL);
@@ -72,9 +71,9 @@ int main(int argc, char **argv) {
     printf("Temps sans optimisation : %f sec\n", delta_oracle);
 
 
-    double ratio = (delta_oracle - delta) / delta * 100;
+    double ratio = delta_oracle / delta;
 
-    printf("La version optimisée est %.2f%% plus rapide que l'originale\n", ratio);
+    printf("La version optimisée est %.2f fois plus rapide que l'originale\n", ratio);
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
