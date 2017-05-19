@@ -189,7 +189,6 @@ void *L1_pool(void *data) {
 
     float xm1, ym1, ym2;
 
-
     while (1) {
         // Search for available col
 

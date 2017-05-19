@@ -27,53 +27,66 @@ unsigned char out[MAX_WIDTH][MAX_HEIGHT];
 unsigned char correct_answer[MAX_WIDTH][MAX_HEIGHT];
 
 extern void deriche_float(int width, int height);
-
 extern void oracle(int width, int height);
+
 
 int main(int argc, char **argv) {
 
     int width, height;
+    struct timeval start, end;
+    double delta, delta_oracle;
 
     fprintf(stderr, "usage: %s in.pgm out.pgm\n", argv[0]);
 
-    // load input
+
+    ///////////////////////////
+    ////// LOADING IMAGE //////
+    ///////////////////////////
+
     load_pgm(argv[1], &width, &height, in);
     fprintf(stdout, "loaded ...\n");
 
-    struct timeval start, end;
+
+    //////////////////////////////////
+    ////// OPTIMIZED ALGORITHM //////
+    /////////////////////////////////
+
     gettimeofday(&start, NULL);
-
-
     for (unsigned int i = MULTIPLIER; i--;) deriche_float(width, height);
-
-
     gettimeofday(&end, NULL);
-    double delta = ((end.tv_sec - start.tv_sec) * 1000000u +
-                    end.tv_usec - start.tv_usec) / 1.e6;
+
+    delta = ((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+
     printf("Temps avec optimisation : %f sec\n", delta);
 
 
-    // save results
+    //////////////////////////
+    ////// SAVING IMAGE //////
+    //////////////////////////
+
     save_pgm(argv[2], width, height, out);
 
-    // Reference
+
+    ////////////////////////////////
+    ////// ORIGINAL ALGORITHM //////
+    ////////////////////////////////
+
     gettimeofday(&start, NULL);
-
     oracle(width, height);
-
-    /*for (int i = 0; i < MULTIPLIER; i++) {
-        oracle(width, height);
-    }*/
-
     gettimeofday(&end, NULL);
-    double delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u +
-                            end.tv_usec - start.tv_usec) / 1.e6) * MULTIPLIER;
+
+    delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6) * MULTIPLIER;
+
     printf("Temps sans optimisation : %f sec\n", delta_oracle);
 
 
     double ratio = delta_oracle / delta;
-
     printf("La version optimisée est %.2f fois plus rapide que l'originale\n", ratio);
+
+
+    //////////////////////////
+    ////// RESULT CHECK //////
+    //////////////////////////
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
