@@ -190,10 +190,14 @@ void *L1_pool(void *data) {
     float xm1, ym1, ym2;
 
 
-    while (treatedL1 < width) {
+    while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL1);
+        if (treatedL1 >= width) {
+            pthread_mutex_unlock(&mutexL1);
+            return NULL;
+        }
         i = treatedL1++;
         pthread_mutex_unlock(&mutexL1);
 
@@ -220,10 +224,14 @@ void *L2_pool(void *data) {
     float yp1, yp2;
 
 
-    while (treatedL2 < width) {
+    while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL2);
+        if (treatedL2 >= width) {
+            pthread_mutex_unlock(&mutexL2);
+            return NULL;
+        }
         i = treatedL2++;
         pthread_mutex_unlock(&mutexL2);
 
@@ -249,10 +257,14 @@ void *L3_pool(void *data) {
     unsigned int i, j;
 
 
-    while (treatedL3 < width) {
+    while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL3);
+        if (treatedL3 >= width) {
+            pthread_mutex_unlock(&mutexL3);
+            return NULL;
+        }
         i = treatedL3++;
         pthread_mutex_unlock(&mutexL3);
 
@@ -271,10 +283,14 @@ void *L4_pool(void *data) {
     float tm1, ym1, ym2;
 
 
-    while (treatedL4 < height) {
+    while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL4);
+        if (treatedL4 >= height) {
+            pthread_mutex_unlock(&mutexL4);
+            return NULL;
+        }
         j = treatedL4++;
         pthread_mutex_unlock(&mutexL4);
 
@@ -300,10 +316,14 @@ void *L5_pool(void *data) {
     float yp1, yp2;
 
 
-    while (treatedL5 < height) {
+    while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL5);
+        if (treatedL5 >= height) {
+            pthread_mutex_unlock(&mutexL5);
+            return NULL;
+        }
         j = treatedL5++;
         pthread_mutex_unlock(&mutexL5);
 
@@ -326,20 +346,20 @@ void *L6_pool(void *data) {
     unsigned int height = dataBis[1];
     unsigned int i, j;
 
-
-    while (treatedL6 < width) {
+    while (1) { // Infinite loop
         // Search for available col
-
         pthread_mutex_lock(&mutexL6);
+        if (treatedL6 >= width) {
+            pthread_mutex_unlock(&mutexL6);
+            return NULL;
+        }
         i = treatedL6++;
         pthread_mutex_unlock(&mutexL6);
 
         for (j = height; j--;) {
             out[i][j] = (unsigned char) ((unsigned char) (C2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
         }
-
     }
-    return NULL;
 }
 
 //========================//
