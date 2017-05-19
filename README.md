@@ -34,6 +34,6 @@ loaded ...
 Temps avec optimisation : 0.349611 sec
 Saving image ./result.pgm (w=7786 x h=3000)
 Temps sans optimisation : 15.109710 sec
-La version optimisée est 43.22 fois plus rapide que l'originale                                                                                                                                                                                                     R
-Résultat correct.                                          
+La version optimisée est 43.22 fois plus rapide que l'originale
+Résultat correct.
 ```
