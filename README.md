@@ -32,9 +32,9 @@ width= 7786
 height= 3000
 depth= 255
 loaded ...
-Temps avec optimisation : 0.349611 sec
+Temps avec optimisation : 2.163192 sec
 Saving image ./result.pgm (w=7786 x h=3000)
-Temps sans optimisation : 15.109710 sec
-La version optimisée est 43.22 fois plus rapide que l'originale
+Temps sans optimisation : 5.038760 sec
+La version optimisée est 2.33 fois plus rapide que l'originale
 Résultat correct.
 ```
