@@ -81,6 +81,12 @@ void deriche_float(int width, int height) {
     sizeData[0] = (unsigned int) width;
     sizeData[1] = (unsigned int) height;
 
+    treatedL1 = 0;
+    treatedL2 = 0;
+    treatedL3 = 0;
+    treatedL4 = 0;
+    treatedL5 = 0;
+    treatedL6 = 0;
 
     // L1 & L2
 
