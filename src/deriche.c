@@ -135,7 +135,7 @@ void *L1(void *data) {
 
     // L1:
 
-    for (i = MAX_THREAD / 2; i--;) pthread_create(&pool[i], NULL, L1_pool, data);
+    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L1_pool, data);
     for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
     return NULL;
@@ -192,6 +192,7 @@ void *L1_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
+    unsigned int until;
 
     float xm1, ym1, ym2;
 
@@ -203,16 +204,19 @@ void *L1_pool(void *data) {
             pthread_mutex_unlock(&mutexL1);
             return NULL;
         }
-        i = treatedL1++;
+        i = treatedL1;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL1 = until;
         pthread_mutex_unlock(&mutexL1);
 
-        ym1 = 0, ym2 = 0, xm1 = 0;
-
-        for (j = 0; j < height; j++) {
-            tmp1[i][j] = (A1 * in[i][j] + A2 * xm1 + B1 * ym1 + B2 * ym2);
-            xm1 = in[i][j];
-            ym2 = ym1;
-            ym1 = tmp1[i][j];
+        for (; i < until; ++i) {
+            ym1 = 0, ym2 = 0, xm1 = 0;
+            for (j = 0; j < height; j++) {
+                tmp1[i][j] = (A1 * in[i][j] + A2 * xm1 + B1 * ym1 + B2 * ym2);
+                xm1 = in[i][j];
+                ym2 = ym1;
+                ym1 = tmp1[i][j];
+            }
         }
     }
     return NULL;
@@ -224,6 +228,7 @@ void *L2_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
+    unsigned int until;
 
     float xp1, xp2;
     float yp1, yp2;
@@ -237,18 +242,22 @@ void *L2_pool(void *data) {
             pthread_mutex_unlock(&mutexL2);
             return NULL;
         }
-        i = treatedL2++;
+        i = treatedL2;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL2 = until;
         pthread_mutex_unlock(&mutexL2);
 
 
-        yp1 = 0, yp2 = 0, xp1 = 0, xp2 = 0;
+        for (; i < until; ++i) {
+            yp1 = 0, yp2 = 0, xp1 = 0, xp2 = 0;
 
-        for (j = height; j--;) {
-            tmp2[i][j] = (A3 * xp1 + A1 * xp2 + B1 * yp1 + B2 * yp2);
-            xp2 = xp1;
-            xp1 = in[i][j];
-            yp2 = yp1;
-            yp1 = tmp2[i][j];
+            for (j = height; j--;) {
+                tmp2[i][j] = (A3 * xp1 + A1 * xp2 + B1 * yp1 + B2 * yp2);
+                xp2 = xp1;
+                xp1 = in[i][j];
+                yp2 = yp1;
+                yp1 = tmp2[i][j];
+            }
         }
     }
     return NULL;
@@ -260,7 +269,7 @@ void *L3_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
-
+    unsigned int until;
 
     while (1) {
         // Search for available col
@@ -270,10 +279,15 @@ void *L3_pool(void *data) {
             pthread_mutex_unlock(&mutexL3);
             return NULL;
         }
-        i = treatedL3++;
+        i = treatedL3;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL3 = until;
         pthread_mutex_unlock(&mutexL3);
 
-        for (j = height; j--;) tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
+
+        for (; i < until; ++i) {
+            for (j = height; j--;) tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
+        }
     }
     return NULL;
 }
@@ -350,6 +364,7 @@ void *L6_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
+    unsigned int until;
 
     while (1) { // Infinite loop
         // Search for available col
@@ -358,11 +373,15 @@ void *L6_pool(void *data) {
             pthread_mutex_unlock(&mutexL6);
             return NULL;
         }
-        i = treatedL6++;
+        i = treatedL6;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL6 = until;
         pthread_mutex_unlock(&mutexL6);
 
-        for (j = height; j--;) {
-            out[i][j] = (unsigned char) ((unsigned char) (C2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
+        for (; i < until; ++i) {
+            for (j = height; j--;) {
+                out[i][j] = (unsigned char) ((unsigned char) (C2 * (tmp4[i][j] + tmp5[i][j])) > 25 ? 0 : 255);
+            }
         }
     }
 }
