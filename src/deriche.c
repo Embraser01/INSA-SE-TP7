@@ -95,7 +95,7 @@ void deriche_float(int width, int height) {
 
     // Let's use this time to do something useful
 
-    pool = malloc(sizeof(pthread_t) * MAX_THREAD); // For L3 & L6
+    pool = malloc(sizeof(pthread_t) * MAX_THREAD * 2); // For L3 & L6
 
     // Now, we are ready to wait
 
@@ -104,8 +104,8 @@ void deriche_float(int width, int height) {
 
     // L3:
 
-    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L3_pool, sizeData);
-    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD * 2; i--;) pthread_create(&pool[i], NULL, L3_pool, sizeData);
+    for (i = MAX_THREAD * 2; i--;) pthread_join(pool[i], NULL);
 
 
     // L4 & L5
@@ -118,8 +118,8 @@ void deriche_float(int width, int height) {
 
     // L6:
 
-    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L6_pool, sizeData);
-    for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
+    for (i = MAX_THREAD * 2; i--;) pthread_create(&pool[i], NULL, L6_pool, sizeData);
+    for (i = MAX_THREAD * 2; i--;) pthread_join(pool[i], NULL);
 
 }
 
@@ -135,7 +135,7 @@ void *L1(void *data) {
 
     // L1:
 
-    for (i = MAX_THREAD; i--;) pthread_create(&pool[i], NULL, L1_pool, data);
+    for (i = MAX_THREAD / 2; i--;) pthread_create(&pool[i], NULL, L1_pool, data);
     for (i = MAX_THREAD; i--;) pthread_join(pool[i], NULL);
 
     return NULL;

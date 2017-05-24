@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     for (unsigned int i = MULTIPLIER; i--;) deriche_float(width, height);
     gettimeofday(&end, NULL);
 
-    delta = ((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    delta = (((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6) / MULTIPLIER;
 
     printf("Temps avec optimisation : %f sec\n", delta);
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     oracle(width, height);
     gettimeofday(&end, NULL);
 
-    delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6) * MULTIPLIER;
+    delta_oracle = (((end.tv_sec - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6);
 
     printf("Temps sans optimisation : %f sec\n", delta_oracle);
 
