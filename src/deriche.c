@@ -27,6 +27,9 @@ static pthread_mutex_t mutexL4 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL5 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
 
+static pthread_mutex_t mutex4[MAX_WIDTH][MAX_HEIGHT];
+static pthread_mutex_t mutex5[MAX_WIDTH][MAX_HEIGHT];
+
 
 //===================//
 //===== DEFINES =====//
@@ -286,7 +289,16 @@ void *L3_pool(void *data) {
 
 
         for (; i < until; ++i) {
-            for (j = height; j--;) tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
+            if (i == 0) continue;
+
+            for (j = height; j--;) {
+                tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
+                pthread_mutex_init(&mutex4[i][j], NULL);
+                pthread_mutex_init(&mutex5[i][j], NULL);
+                pthread_mutex_lock(&mutex4[i][j]);
+                pthread_mutex_lock(&mutex5[i][j]);
+
+            }
         }
     }
     return NULL;
@@ -298,29 +310,38 @@ void *L4_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
+    unsigned int until;
 
     float tm1, ym1, ym2;
-
 
     while (1) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL4);
-        if (treatedL4 >= height) {
+        if (treatedL4 >= width) {
             pthread_mutex_unlock(&mutexL4);
             return NULL;
         }
-        j = treatedL4++;
+        i = treatedL4;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL4 = until;
         pthread_mutex_unlock(&mutexL4);
 
-        tm1 = 0, ym1 = 0, ym2 = 0;
-        for (i = 0; i < width; i++) {
-            tmp4[i][j] = (A5 * tmp3[i][j] + A6 * tm1 + B1 * ym1 + B2 * ym2);
-            tm1 = tmp3[i][j];
-            ym2 = ym1;
-            ym1 = tmp4[i][j];
+        for (; i < until; ++i) {
+            tm1 = 0, ym1 = 0, ym2 = 0;
+            for (j = 0; j < height; j++) {
+                if (i != 0) pthread_mutex_lock(&mutex4[i - 1][j]);
+
+                tmp4[i][j] = (A5 * tmp3[i][j] + A6 * tm1 + B1 * ym1 + B2 * ym2);
+                tm1 = tmp3[i][j];
+                ym2 = ym1;
+                ym1 = tmp4[i][j];
+
+                pthread_mutex_unlock(&mutex4[i][j]);
+            }
         }
     }
+
     return NULL;
 }
 
@@ -330,6 +351,7 @@ void *L5_pool(void *data) {
     unsigned int width = dataBis[0];
     unsigned int height = dataBis[1];
     unsigned int i, j;
+    unsigned int until;
 
     float tp1, tp2;
     float yp1, yp2;
@@ -339,20 +361,28 @@ void *L5_pool(void *data) {
         // Search for available col
 
         pthread_mutex_lock(&mutexL5);
-        if (treatedL5 >= height) {
+        if (treatedL5 >= width) {
             pthread_mutex_unlock(&mutexL5);
             return NULL;
         }
-        j = treatedL5++;
+        i = treatedL5;
+        until = i + NB_LINE_PER_THREAD > width ? width : i + NB_LINE_PER_THREAD;
+        treatedL5 = until;
         pthread_mutex_unlock(&mutexL5);
 
-        tp1 = 0, tp2 = 0, yp1 = 0, yp2 = 0;
-        for (i = width; i--;) {
-            tmp5[i][j] = (A7 * tp1 + A8 * tp2 + B1 * yp1 + B2 * yp2);
-            tp2 = tp1;
-            tp1 = tmp3[i][j];
-            yp2 = yp1;
-            yp1 = tmp5[i][j];
+        for (; i < until; ++i) {
+            tp1 = 0, tp2 = 0, yp1 = 0, yp2 = 0;
+            for (j = 0; j < height; j++) {
+                if (i != 0) pthread_mutex_lock(&mutex5[i - 1][j]);
+
+                tmp5[i][j] = (A7 * tp1 + A8 * tp2 + B1 * yp1 + B2 * yp2);
+                tp2 = tp1;
+                tp1 = tmp3[i][j];
+                yp2 = yp1;
+                yp1 = tmp5[i][j];
+
+                pthread_mutex_unlock(&mutex5[i][j]);
+            }
         }
     }
     return NULL;
