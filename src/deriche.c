@@ -13,12 +13,12 @@ static float tmp3[MAX_WIDTH][MAX_HEIGHT];
 static float tmp4[MAX_WIDTH][MAX_HEIGHT];
 static float tmp5[MAX_WIDTH][MAX_HEIGHT];
 
-static unsigned int treatedL1 = 0;
-static unsigned int treatedL2 = 0;
-static unsigned int treatedL3 = 0;
-static unsigned int treatedL4 = 0;
-static unsigned int treatedL5 = 0;
-static unsigned int treatedL6 = 0;
+static unsigned int treatedL1;
+static unsigned int treatedL2;
+static unsigned int treatedL3;
+static unsigned int treatedL4;
+static unsigned int treatedL5;
+static unsigned int treatedL6;
 
 static pthread_mutex_t mutexL1 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL2 = PTHREAD_MUTEX_INITIALIZER;
@@ -27,9 +27,13 @@ static pthread_mutex_t mutexL4 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL5 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutexL6 = PTHREAD_MUTEX_INITIALIZER;
 
-static pthread_mutex_t mutex4[MAX_WIDTH][MAX_HEIGHT];
-static pthread_mutex_t mutex5[MAX_WIDTH][MAX_HEIGHT];
+static pthread_mutex_t mutex4[MAX_HEIGHT][2];
+static pthread_mutex_t mutex5[MAX_HEIGHT][2];
+static unsigned int v4[MAX_HEIGHT];
+static unsigned int v5[MAX_HEIGHT];
 
+static float tm1, ym1, ym2;
+static float tp1, tp2, yp1, yp2;
 
 //===================//
 //===== DEFINES =====//
@@ -54,14 +58,23 @@ static pthread_mutex_t mutex5[MAX_WIDTH][MAX_HEIGHT];
 
 
 static void *L1(void *data);
+
 static void *L2(void *data);
+
 static void *L4(void *data);
+
 static void *L5(void *data);
+
 static void *L1_pool(void *data);
+
 static void *L2_pool(void *data);
+
 static void *L3_pool(void *data);
+
 static void *L4_pool(void *data);
+
 static void *L5_pool(void *data);
+
 static void *L6_pool(void *data);
 
 //===================//
@@ -99,6 +112,16 @@ void deriche_float(int width, int height) {
     // Let's use this time to do something useful
 
     pool = malloc(sizeof(pthread_t) * MAX_THREAD * 2); // For L3 & L6
+
+    for (i = MAX_HEIGHT; i--;) {
+        pthread_mutex_init(&mutex4[i][0], NULL);
+        pthread_mutex_init(&mutex4[i][1], NULL);
+        pthread_mutex_init(&mutex5[i][0], NULL);
+        pthread_mutex_init(&mutex5[i][1], NULL);
+        v4[i] = 0;
+        v5[i] = 0;
+    }
+
 
     // Now, we are ready to wait
 
@@ -289,15 +312,8 @@ void *L3_pool(void *data) {
 
 
         for (; i < until; ++i) {
-            if (i == 0) continue;
-
             for (j = height; j--;) {
                 tmp3[i][j] = (C1 * (tmp1[i][j] + tmp2[i][j]));
-                pthread_mutex_init(&mutex4[i][j], NULL);
-                pthread_mutex_init(&mutex5[i][j], NULL);
-                pthread_mutex_lock(&mutex4[i][j]);
-                pthread_mutex_lock(&mutex5[i][j]);
-
             }
         }
     }
@@ -312,7 +328,6 @@ void *L4_pool(void *data) {
     unsigned int i, j;
     unsigned int until;
 
-    float tm1, ym1, ym2;
 
     while (1) {
         // Search for available col
@@ -328,16 +343,33 @@ void *L4_pool(void *data) {
         pthread_mutex_unlock(&mutexL4);
 
         for (; i < until; ++i) {
-            tm1 = 0, ym1 = 0, ym2 = 0;
-            for (j = 0; j < height; j++) {
-                if (i != 0) pthread_mutex_lock(&mutex4[i - 1][j]);
+            for (j = 0; j < height; ++j) {
 
-                tmp4[i][j] = (A5 * tmp3[i][j] + A6 * tm1 + B1 * ym1 + B2 * ym2);
-                tm1 = tmp3[i][j];
-                ym2 = ym1;
-                ym1 = tmp4[i][j];
+                while (1) {
+                    pthread_mutex_lock(&mutex4[j][0]);
 
-                pthread_mutex_unlock(&mutex4[i][j]);
+                    if (i == v4[j]) {
+                        pthread_mutex_lock(&mutex4[j][1]);
+
+                        if (i == 0) {
+                            tm1 = 0;
+                            ym1 = 0;
+                            ym2 = 0;
+                        }
+
+                        tmp4[i][j] = (A5 * tmp3[i][j] + A6 * tm1 + B1 * ym1 + B2 * ym2);
+                        tm1 = tmp3[i][j];
+                        ym2 = ym1;
+                        ym1 = tmp4[i][j];
+
+                        v4[j]++;
+                        pthread_mutex_unlock(&mutex4[j][1]);
+                        pthread_mutex_unlock(&mutex4[j][0]);
+                        break;
+                    }
+
+                    pthread_mutex_unlock(&mutex4[j][0]);
+                }
             }
         }
     }
@@ -352,9 +384,6 @@ void *L5_pool(void *data) {
     unsigned int height = dataBis[1];
     unsigned int i, j;
     unsigned int until;
-
-    float tp1, tp2;
-    float yp1, yp2;
 
 
     while (1) {
@@ -371,17 +400,34 @@ void *L5_pool(void *data) {
         pthread_mutex_unlock(&mutexL5);
 
         for (; i < until; ++i) {
-            tp1 = 0, tp2 = 0, yp1 = 0, yp2 = 0;
-            for (j = 0; j < height; j++) {
-                if (i != 0) pthread_mutex_lock(&mutex5[i - 1][j]);
+            for (j = 0; j < height; ++j) {
 
-                tmp5[i][j] = (A7 * tp1 + A8 * tp2 + B1 * yp1 + B2 * yp2);
-                tp2 = tp1;
-                tp1 = tmp3[i][j];
-                yp2 = yp1;
-                yp1 = tmp5[i][j];
+                while (1) {
+                    pthread_mutex_lock(&mutex5[j][0]);
 
-                pthread_mutex_unlock(&mutex5[i][j]);
+                    if (v5[j] == i) {
+                        pthread_mutex_lock(&mutex5[j][1]);
+
+                        if (i == 0) {
+                            tp1 = 0;
+                            tp2 = 0;
+                            yp1 = 0;
+                            yp2 = 0;
+                        }
+                        tmp5[i][j] = (A7 * tp1 + A8 * tp2 + B1 * yp1 + B2 * yp2);
+                        tp2 = tp1;
+                        tp1 = tmp3[i][j];
+                        yp2 = yp1;
+                        yp1 = tmp5[i][j];
+
+                        v5[j]++;
+                        pthread_mutex_unlock(&mutex5[j][1]);
+                        pthread_mutex_unlock(&mutex5[j][0]);
+                        break;
+                    }
+
+                    pthread_mutex_unlock(&mutex5[j][0]);
+                }
             }
         }
     }

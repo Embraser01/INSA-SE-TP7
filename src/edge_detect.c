@@ -20,7 +20,7 @@
 #include <common.h>
 #include <sys/time.h>
 
-#define MULTIPLIER 10
+#define MULTIPLIER 1
 
 unsigned char in[MAX_WIDTH][MAX_HEIGHT];
 unsigned char out[MAX_WIDTH][MAX_HEIGHT];
